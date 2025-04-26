@@ -28,7 +28,7 @@
           </sup>
           <span class="text-bold text-7xl">0</span>
         </p>
-        <q-input v-model="text" type="textarea" class="custuom-text-area" style="width: 400px" rows="4" filled placeholder="Description (Optional)" />
+        <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
       </div>
     </div>
     <q-card flat class="card-right q--avoid-card-border">
@@ -125,7 +125,8 @@
       </q-card-section>
     </q-card>
   </q-card>
-  <q-page class="flex flex-center"> </q-page>
+
+  <edit-merchant-processing-fee-dialog />
 </template>
 
 <style lang="scss">
@@ -173,23 +174,31 @@
   flex: 1 0 344px;
 }
 
-.custuom-text-area {
+.custom-text-area {
+  width: 400px;
   .q-field__control {
     &::before,
     &::after {
       display: none;
     }
   }
+
+  textarea {
+    max-height: 400px;
+  }
 }
 </style>
 
 <script setup>
+import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
 import { ref } from "vue";
 const model = ref("New York Clinic");
 const paymentMethod = ref("cash");
 const onInputValue = (value) => {
   console.log("Selected value:", value);
 };
+
+const description = ref("");
 
 const options = [
   { label: "New York Clinic", value: "1" },
