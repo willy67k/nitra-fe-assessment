@@ -117,14 +117,14 @@
       </q-card-section>
 
       <q-card-section class="q-my-sm">
-        <q-btn unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm" @click="() => null">Log Payment</span>
+        <q-btn @click="() => null" unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm">Log Payment</span>
         </q-btn>
-        <q-btn unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm" @click="() => null">Initiate Payment on Reader</span>
+        <q-btn @click="() => (isReaderOpen = true)" unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm">Initiate Payment on Reader</span>
         </q-btn>
-        <q-btn unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm text-orange-400" @click="() => creditDialog.open()">Input Card Number Manually</span>
+        <q-btn @click="() => creditDialog.open()" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm text-orange-400">Input Card Number Manually</span>
         </q-btn>
       </q-card-section>
     </q-card>
@@ -132,6 +132,7 @@
 
   <edit-merchant-processing-fee-dialog ref="feeDialog" />
   <credit-card-details-dialog ref="creditDialog" />
+  <payment-reader-dialog v-model:is-reader-open="isReaderOpen" />
 </template>
 
 <style lang="scss" scoped>
@@ -211,6 +212,7 @@
 <script setup>
 import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
 import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
+import PaymentReaderDialog from "components/PaymentReaderDialog.vue";
 import { ref } from "vue";
 const model = ref("New York Clinic");
 const paymentMethod = ref("cash");
@@ -227,4 +229,5 @@ const options = [
 ];
 const feeDialog = ref(null);
 const creditDialog = ref(null);
+const isReaderOpen = ref(false);
 </script>
