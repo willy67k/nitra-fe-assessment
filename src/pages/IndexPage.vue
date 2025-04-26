@@ -39,11 +39,11 @@
       <q-separator />
 
       <q-card-section>
-        <div class="row justify-between q-px-md q-py-sm q-my-xs">
+        <div class="row justify-between q-px-md q-py-nm">
           <p class="text-xs text-gray-700">Subtotal</p>
           <p class="text-xs text-gray-700">$0</p>
         </div>
-        <div class="row justify-between q-px-md q-py-sm q-my-xs">
+        <div class="row justify-between q-px-md q-py-nm">
           <p class="text-xs text-gray-700">Tax(6.00%)</p>
           <p class="text-xs text-gray-700">$0</p>
         </div>
@@ -61,7 +61,7 @@
             text-color="teal-100"
             color="white"
             toggle-color="teal-100"
-            style="border: 1px solid #a9d4d6"
+            style="border: 1px solid #a9d4d6; border-radius: 6px"
             spread
             unelevated
             :options="[
@@ -71,24 +71,22 @@
           >
             <template v-slot:cash>
               <div class="row items-center no-wrap">
-                <q-icon right name="fa-solid fa-sack-dollar fa-sm text-teal-300" />
+                <q-icon right class="custom-icon" name="fa-solid fa-sack-dollar text-teal-500" />
                 <span class="text-teal-700 text-xss">Pay by Cash $0</span>
               </div>
             </template>
             <template v-slot:card>
               <div class="row items-center no-wrap">
-                <q-icon right name="fa-solid fa-credit-card fa-sm text-teal-300" />
+                <q-icon right class="custom-icon" name="fa-solid fa-credit-card text-teal-500" />
                 <span class="text-teal-700 text-xss">Pay by Card $0</span>
               </div>
             </template>
-
-            <!-- <q-btn icon="fa-solid fa-sack-dollar fa-sm text-teal-300" color="teal-100" text-color="teal-100">
-              <span class="text-teal-700 text-xss">Pay by Cash $0</span>
-            </q-btn>
-            <q-btn outline icon="fa-solid fa-credit-card" color="teal-100" text-color="teal-100">
-              <span class="text-teal-700 text-xss">Pay by Card $0</span>
-            </q-btn> -->
           </q-btn-toggle>
+        </div>
+
+        <div class="row justify-between q-px-md q-pb-lg">
+          <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => feeDialog.open()" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
+          <p class="text-xs">$0.71</p>
         </div>
 
         <q-separator color="teal-700" />
@@ -119,18 +117,25 @@
       </q-card-section>
 
       <q-card-section class="q-my-sm">
-        <q-btn icon="fa-solid fa-money-bill-wave fa-sm" color="orange-400" class="full-width">
-          <span class="text-xss">Log Payment</span>
+        <q-btn unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm" @click="() => null">Log Payment</span>
+        </q-btn>
+        <q-btn unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm" @click="() => null">Initiate Payment on Reader</span>
+        </q-btn>
+        <q-btn unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
+          <span class="text-sm text-orange-400" @click="() => creditDialog.open()">Input Card Number Manually</span>
         </q-btn>
       </q-card-section>
     </q-card>
   </q-card>
 
-  <edit-merchant-processing-fee-dialog />
+  <edit-merchant-processing-fee-dialog ref="feeDialog" />
+  <credit-card-details-dialog ref="creditDialog" />
 </template>
 
-<style lang="scss">
-.q-field-custom {
+<style lang="scss" scoped>
+:deep(.q-field-custom) {
   &.sub {
     .q-field__control {
       padding: 0;
@@ -174,7 +179,12 @@
   flex: 1 0 344px;
 }
 
-.custom-text-area {
+.custom-icon {
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+:deep(.custom-text-area) {
   width: 400px;
   .q-field__control {
     &::before,
@@ -187,10 +197,20 @@
     max-height: 400px;
   }
 }
+
+:deep(.custom-btn) {
+  border-radius: 6px;
+  text-transform: unset;
+  .q-icon {
+    margin-right: 8px;
+    font-size: 16px;
+  }
+}
 </style>
 
 <script setup>
 import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
+import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
 import { ref } from "vue";
 const model = ref("New York Clinic");
 const paymentMethod = ref("cash");
@@ -205,4 +225,6 @@ const options = [
   { label: "Option 2", value: "option2" },
   { label: "Option 3", value: "option3" },
 ];
+const feeDialog = ref(null);
+const creditDialog = ref(null);
 </script>

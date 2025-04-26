@@ -16,6 +16,10 @@
 @use "sass:map";
 
 $new-spaces: (
+  nm: (
+    x: 12px,
+    y: 12px,
+  ),
   8xl: (
     x: 96px,
     y: 96px,

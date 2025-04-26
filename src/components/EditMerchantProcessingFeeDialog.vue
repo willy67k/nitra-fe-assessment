@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="prompt" persistent>
+  <q-dialog v-model="prompt">
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
@@ -44,8 +44,8 @@
       </q-card-section>
 
       <q-card-section class="q-px-lg">
-        <div class="row items-center no-wrap q-mb-sm q-pb-xs" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-sm q-pr-xs">Merchant processing fee</p>
+        <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
+          <p class="text-sm text-gray-900 q-mr-nm">Merchant processing fee</p>
           <q-input
             type="number"
             v-model.number="numberA"
@@ -80,8 +80,8 @@
           </q-input>
           <p class="text-xss text-gray-700">/ $0.10</p>
         </div>
-        <div class="row items-center no-wrap q-mb-sm q-pb-xs" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-sm q-pr-xs">Patient processing fee</p>
+        <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
+          <p class="text-sm text-gray-900 q-mr-nm">Patient processing fee</p>
           <q-input
             type="number"
             v-model.number="numberA"
@@ -125,15 +125,15 @@
       </q-card-section>
 
       <q-card-actions align="between" class="q-py-md q-px-lg">
-        <q-btn flat style="padding: 8px 16px; text-transform: unset; border-radius: 6px" color="gray-600" label="Cancel" v-close-popup />
-        <q-btn unelevated style="padding: 8px 16px; text-transform: unset; border-radius: 6px" color="orange-400" v-close-popup> Update </q-btn>
+        <q-btn flat class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
+        <q-btn unelevated class="custom-btn-action" color="orange-400" v-close-popup>Update</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <style lang="scss" scoped>
-.custom-slider {
+:deep(.custom-slider) {
   .q-slider__track-container {
     margin-bottom: 10px;
 
@@ -162,7 +162,7 @@
   }
 }
 
-.custom-input {
+:deep(.custom-input) {
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -189,11 +189,25 @@
     }
   }
 }
+
+:deep(.custom-btn-action) {
+  padding: 8px 16px;
+  text-transform: unset;
+  border-radius: 6px;
+}
 </style>
 
 <script setup>
 import { ref } from "vue";
-const prompt = ref(true);
+const prompt = ref(false);
 const firstModel = ref(1);
 const numberA = ref("");
+
+function open() {
+  prompt.value = true;
+}
+
+defineExpose({
+  open,
+});
 </script>
