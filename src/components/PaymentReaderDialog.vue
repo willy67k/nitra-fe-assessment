@@ -66,7 +66,7 @@ function onShow() {
       timeout.value--;
     } else {
       clearInterval(timeoutRef.value);
-      close();
+      emit("update:isReaderOpen", false);
     }
   }, 1000);
 }

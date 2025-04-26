@@ -9,13 +9,16 @@
         borderless
         bg-color="gray-100"
         standout="bg-gray-100 text-black"
-        dropdown-icon="fa-solid fa-chevron-down fa-xs"
+        dropdown-icon="fa-solid fa-chevron-down text-gray-600"
         @update:model-value="onInputValue"
       >
         <template v-slot:prepend>
-          <q-icon name="place" @click.stop.prevent />
+          <q-icon name="fa-solid fa-location-dot" class="text-gray-600" @click.stop.prevent />
         </template>
       </q-select>
+    </div>
+    <div style="margin-left: auto">
+      <q-btn flat class="custom-btn-reset text-sm text-red-400" color="red-400" label="Reset Payment" />
     </div>
   </q-toolbar>
   <q-card flat bordered class="full-card">
@@ -65,8 +68,8 @@
             spread
             unelevated
             :options="[
-              { value: 'cash', slot: 'cash' },
-              { value: 'card', slot: 'card' },
+              { value: PaymentMethodEnum.Cash, slot: 'cash' },
+              { value: PaymentMethodEnum.Card, slot: 'card' },
             ]"
           >
             <template v-slot:cash>
@@ -84,10 +87,14 @@
           </q-btn-toggle>
         </div>
 
-        <div class="row justify-between q-px-md q-pb-lg">
-          <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
-          <p class="text-xs">$0.71</p>
-        </div>
+        <q-slide-transition>
+          <div v-show="paymentMethod === PaymentMethodEnum.Card">
+            <div class="row justify-between q-px-md q-pb-lg">
+              <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
+              <p class="text-xs">$0.71</p>
+            </div>
+          </div>
+        </q-slide-transition>
 
         <q-separator color="teal-700" />
 
@@ -95,6 +102,9 @@
           <p class="text-xs">Pay by Cash Total</p>
           <p class="text-xl text-green-500 text-bold">$0</p>
         </div>
+        <q-slide-transition>
+          <p v-show="isBelowMinimum" class="text-xss text-red-500 q-px-md" style="position: absolute; margin-top: -20px">*Total amount falls below the required minimum of $0.50</p>
+        </q-slide-transition>
       </q-card-section>
 
       <q-separator />
@@ -114,18 +124,44 @@
             <q-icon name="place" @click.stop.prevent />
           </template>
         </q-select>
+
+        <q-select standout="bg-gray" bg-color="gray-50" v-model="country" class="custom-select" input-class="text-black" :options="options" label="Device Reader">
+          <template v-slot:option="scope">
+            <q-item v-bind="scope.itemProps">
+              <q-item-section style="flex: auto">
+                <q-icon name="fa-solid fa-circle-dot text-green-500" />
+                <!-- <q-icon name="fa-solid fa-circle-xmark text-gray-400" /> -->
+              </q-item-section>
+              <q-item-section style="margin-left: 12px">
+                <q-item-label>{{ scope.opt.label }}</q-item-label>
+              </q-item-section>
+            </q-item>
+          </template>
+        </q-select>
       </q-card-section>
 
       <q-card-section class="q-my-sm">
-        <q-btn @click="() => null" unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm">Log Payment</span>
-        </q-btn>
-        <q-btn @click="() => (isReaderOpen = true)" unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm">Initiate Payment on Reader</span>
-        </q-btn>
-        <q-btn @click="() => (isCreditOpen = true)" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
-          <span class="text-sm text-orange-400">Input Card Number Manually</span>
-        </q-btn>
+        <q-slide-transition>
+          <div v-show="paymentMethod === PaymentMethodEnum.Cash">
+            <div v-if="paymentMethod === PaymentMethodEnum.Cash">
+              <q-btn @click="() => null" unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
+                <span class="text-sm">Log Payment</span>
+              </q-btn>
+            </div>
+          </div>
+        </q-slide-transition>
+        <q-slide-transition>
+          <div v-show="paymentMethod === PaymentMethodEnum.Card">
+            <div v-if="paymentMethod === PaymentMethodEnum.Card">
+              <q-btn @click="() => (isReaderOpen = true)" unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
+                <span class="text-sm">Initiate Payment on Reader</span>
+              </q-btn>
+              <q-btn @click="() => (isCreditOpen = true)" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
+                <span class="text-sm text-orange-400">Input Card Number Manually</span>
+              </q-btn>
+            </div>
+          </div>
+        </q-slide-transition>
       </q-card-section>
     </q-card>
   </q-card>
@@ -140,7 +176,19 @@
   &.sub {
     .q-field__control {
       padding: 0;
+      background-color: transparent;
     }
+  }
+
+  .q-field__prepend {
+    padding-right: 8px;
+    font-size: 12px;
+    opacity: 0.4;
+  }
+
+  .q-field__append {
+    padding-left: 4px;
+    font-size: 12px;
   }
 
   .q-field__control {
@@ -207,6 +255,28 @@
     font-size: 16px;
   }
 }
+
+:deep(.custom-btn-reset) {
+  padding: 8px 16px;
+  text-transform: unset;
+  border-radius: 6px;
+}
+
+:deep(.custom-select) {
+  &.q-field--highlighted {
+    .q-field__control {
+      background-color: #ebeeef;
+      box-shadow: none;
+    }
+    .q-field__marginal {
+      color: #5c6970;
+    }
+  }
+
+  .q-field__native .ellipsis {
+    color: #000000;
+  }
+}
 </style>
 
 <script setup>
@@ -214,13 +284,17 @@ import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFe
 import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
 import PaymentReaderDialog from "components/PaymentReaderDialog.vue";
 import { ref } from "vue";
+import { PaymentMethodEnum } from "src/enums/payment-method";
+
 const model = ref("New York Clinic");
-const paymentMethod = ref("cash");
+const paymentMethod = ref(PaymentMethodEnum.Cash);
 const onInputValue = (value) => {
   console.log("Selected value:", value);
 };
 
 const description = ref("");
+
+const isBelowMinimum = ref(true);
 
 const options = [
   { label: "New York Clinic", value: "1" },
