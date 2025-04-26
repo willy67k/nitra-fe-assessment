@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="prompt">
+  <q-dialog :model-value="props.isFeeOpen" @show="onShow" @hide="onHide">
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
@@ -199,15 +199,22 @@
 
 <script setup>
 import { ref } from "vue";
-const prompt = ref(false);
-const firstModel = ref(1);
-const numberA = ref("");
+const props = defineProps({
+  isFeeOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
+const emit = defineEmits(["update:isFeeOpen"]);
 
-function open() {
-  prompt.value = true;
+function onShow() {
+  emit("update:isFeeOpen", true);
 }
 
-defineExpose({
-  open,
-});
+function onHide() {
+  emit("update:isFeeOpen", false);
+}
+
+const firstModel = ref(1);
+const numberA = ref("");
 </script>

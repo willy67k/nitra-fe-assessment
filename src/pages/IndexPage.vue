@@ -85,7 +85,7 @@
         </div>
 
         <div class="row justify-between q-px-md q-pb-lg">
-          <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => feeDialog.open()" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
+          <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
           <p class="text-xs">$0.71</p>
         </div>
 
@@ -123,15 +123,15 @@
         <q-btn @click="() => (isReaderOpen = true)" unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
           <span class="text-sm">Initiate Payment on Reader</span>
         </q-btn>
-        <q-btn @click="() => creditDialog.open()" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
+        <q-btn @click="() => (isCreditOpen = true)" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
           <span class="text-sm text-orange-400">Input Card Number Manually</span>
         </q-btn>
       </q-card-section>
     </q-card>
   </q-card>
 
-  <edit-merchant-processing-fee-dialog ref="feeDialog" />
-  <credit-card-details-dialog ref="creditDialog" />
+  <edit-merchant-processing-fee-dialog v-model:is-fee-open="isFeeOpen" />
+  <credit-card-details-dialog v-model:is-credit-open="isCreditOpen" />
   <payment-reader-dialog v-model:is-reader-open="isReaderOpen" />
 </template>
 
@@ -227,7 +227,7 @@ const options = [
   { label: "Option 2", value: "option2" },
   { label: "Option 3", value: "option3" },
 ];
-const feeDialog = ref(null);
-const creditDialog = ref(null);
+const isFeeOpen = ref(false);
+const isCreditOpen = ref(false);
 const isReaderOpen = ref(false);
 </script>

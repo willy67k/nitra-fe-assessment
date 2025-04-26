@@ -1,5 +1,5 @@
 <template>
-  <q-dialog v-model="prompt">
+  <q-dialog :model-value="props.isCreditOpen" @show="onShow" @hide="onHide">
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
@@ -97,7 +97,7 @@
 
         <q-card-section>
           <div class="row items-center justify-between">
-            <q-btn type="reset" flat class="custom-btn-action" color="gray-600" label="Cancel" />
+            <q-btn flat class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
             <q-btn type="submit" unelevated class="custom-btn-action" color="orange-400"> Pay $27.21 </q-btn>
           </div>
         </q-card-section>
@@ -138,8 +138,16 @@
 <script setup>
 import { useQuasar } from "quasar";
 import { ref } from "vue";
+const props = defineProps({
+  isCreditOpen: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(["update:isCreditOpen"]);
+
 const $q = useQuasar();
-const prompt = ref(false);
 const name = ref(null);
 const cardNumber = ref(null);
 const expirationDate = ref(null);
@@ -179,11 +187,11 @@ function onReset() {
   zip.value = null;
 }
 
-function open() {
-  prompt.value = true;
+function onShow() {
+  emit("update:isCreditOpen", true);
 }
 
-defineExpose({
-  open,
-});
+function onHide() {
+  emit("update:isCreditOpen", false);
+}
 </script>
