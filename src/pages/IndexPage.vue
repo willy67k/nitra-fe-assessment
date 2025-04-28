@@ -31,7 +31,6 @@
             type="number"
             v-model.number="amount"
             @blur="() => (isTouched = true)"
-            @update:model-value="onInputValue"
             min="0"
             step="0.05"
             class="custom-input"
@@ -351,15 +350,18 @@ const amountStore = useAmountStore();
 
 const { paymentMethod, amount, description, isTouched, location, reader, fixedTaxPrice, afterTaxPrice, patientPayFee } = storeToRefs(amountStore);
 
-const onInputValue = (value) => {
-  value = value.toString();
-  if (value.includes(".")) {
-    const parts = value.split(".");
-    parts[1] = parts[1].slice(0, 2);
-    value = parts.join(".");
+watch(amount, () => {
+  if (!amount.value || amount.value < 0) {
+    amount.value = 0;
   }
-  amount.value = value;
-};
+  amount.value = amount.value.toString();
+  if (amount.value.includes(".")) {
+    const parts = amount.value.split(".");
+    parts[1] = parts[1].slice(0, 2);
+    amount.value = parts.join(".");
+  }
+  amount.value;
+});
 
 const reset = () => {
   amount.value = 0;

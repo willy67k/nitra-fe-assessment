@@ -15,7 +15,7 @@
           style="padding: 0 20px"
           v-model.number="merchantFeePercentage"
           color="teal"
-          :label-value="`${merchantFeePercentage}%\n${merchantFeeAmount}`"
+          :label-value="`${merchantFeePercentage}%\n$${merchantAfterPercentage}`"
           label-always
           marker-labels
           :min="0"
@@ -120,7 +120,7 @@
           <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">Set patient processing fee to 0</u>
         </div>
         <div class="">
-          <p class="text-sm text-bold text-justify">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
+          <p class="text-sm text-bold">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
         </div>
       </q-card-section>
 
@@ -136,6 +136,27 @@
 :deep(.custom-slider) {
   .q-slider__track-container {
     margin-bottom: 10px;
+
+    svg {
+      color: white;
+      filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .q-slider__pin {
+      filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.3));
+
+      &::before {
+        border-top: 6px solid #ffffff;
+      }
+    }
+
+    .q-slider__text-container {
+      background: #ffffff;
+    }
+
+    .q-slider__text {
+      color: #2e3538;
+    }
 
     &::before,
     &::after {
@@ -239,6 +260,9 @@ watch(totalProcessingFeeFixed, () => {
 });
 
 watch(merchantFeePercentage, () => {
+  if (+merchantFeePercentage.value < 0) {
+    merchantFeePercentage.value = numeral(0).format("0.00");
+  }
   if (!commonStore.organization) return;
   if (+merchantFeePercentage.value > +totalProcessingFeePercentage.value) {
     merchantFeePercentage.value = totalProcessingFeePercentage.value;
@@ -247,6 +271,9 @@ watch(merchantFeePercentage, () => {
 });
 
 watch(patientFeePercentage, () => {
+  if (+patientFeePercentage.value < 0) {
+    patientFeePercentage.value = numeral(0).format("0.00");
+  }
   if (!commonStore.organization) return;
   if (+patientFeePercentage.value > +totalProcessingFeePercentage.value) {
     merchantFeePercentage.value = totalProcessingFeePercentage.value;
@@ -255,6 +282,9 @@ watch(patientFeePercentage, () => {
 });
 
 watch(merchantFeeAmount, () => {
+  if (+merchantFeeAmount.value < 0) {
+    merchantFeeAmount.value = numeral(0).format("0.00");
+  }
   if (!commonStore.organization) return;
   if (+merchantFeeAmount.value > +totalProcessingFeeFixed.value) {
     merchantFeeAmount.value = totalProcessingFeeFixed.value;
@@ -263,11 +293,18 @@ watch(merchantFeeAmount, () => {
 });
 
 watch(patientFeeAmount, () => {
+  if (+patientFeeAmount.value < 0) {
+    patientFeeAmount.value = numeral(0).format("0.00");
+  }
   if (!commonStore.organization) return;
   if (+patientFeeAmount.value > +totalProcessingFeeFixed.value) {
     patientFeeAmount.value = totalProcessingFeeFixed.value;
   }
   merchantFeeAmount.value = numeral(totalProcessingFeeFixed.value).subtract(patientFeeAmount.value).format("0.00");
+});
+
+const merchantAfterPercentage = computed(() => {
+  return numeral(merchantFeePercentage.value).multiply(amount.value).divide(100).format("0.00");
 });
 
 const merchantPayFee = computed(() => {
