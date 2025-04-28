@@ -24,19 +24,6 @@
   </q-toolbar>
   <q-card flat bordered class="full-card">
     <div class="card-left q-pt-8xl">
-      <!-- <div class="fit column content-center text-center">
-        <p class="text-gray-700 text-lg">Enter Amount</p>
-        <p class="text-bold text-7xl">
-          <sup class="text-bold text-4xl">
-            <i class="fa-solid fa-dollar-sign"></i>
-          </sup>
-          <span class="text-bold text-7xl">0</span>
-        </p>
-        <div>
-          <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
-        </div>
-      </div> -->
-
       <div class="row column items-center full-width">
         <p class="text-gray-700 text-lg">Enter Amount</p>
         <div>
@@ -110,7 +97,7 @@
             <template v-slot:card>
               <div class="row items-center no-wrap">
                 <q-icon right class="custom-icon" name="fa-solid fa-credit-card text-teal-500" />
-                <span class="text-teal-700 text-xss">Pay by Card $0</span>
+                <span class="text-teal-700 text-xss">Pay by Card ${{ payByCardFee }}</span>
               </div>
             </template>
           </q-btn-toggle>
@@ -120,7 +107,7 @@
           <div v-show="paymentMethod === PaymentMethodEnum.Card">
             <div class="row justify-between q-px-md q-pb-lg">
               <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
-              <p class="text-xs">$0.71</p>
+              <p class="text-xs">${{ patientPayFee }}</p>
             </div>
           </div>
         </q-slide-transition>
@@ -301,8 +288,6 @@
       background-color: transparent;
       box-shadow: none;
     }
-    .q-field__marginal {
-    }
   }
 }
 
@@ -351,19 +336,21 @@
 </style>
 
 <script setup>
+import { computed, ref, watch } from "vue";
+import numeral from "numeral";
 import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
 import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
 import PaymentReaderDialog from "components/PaymentReaderDialog.vue";
-import { computed, ref, watch } from "vue";
 import { PaymentMethodEnum } from "src/enums/payment-method";
 import { useCommonStore } from "src/stores/common-store";
-import numeral from "numeral";
+import { useAmountStore } from "src/stores/amount-store";
+import { storeToRefs } from "pinia";
 
 const commonStore = useCommonStore();
+const amountStore = useAmountStore();
 
-const paymentMethod = ref(PaymentMethodEnum.Cash);
+const { paymentMethod, amount, description, isTouched, location, reader, fixedTaxPrice, afterTaxPrice, patientPayFee } = storeToRefs(amountStore);
 
-const amount = ref(0);
 const onInputValue = (value) => {
   value = value.toString();
   if (value.includes(".")) {
@@ -377,16 +364,13 @@ const onInputValue = (value) => {
 const reset = () => {
   amount.value = 0;
   isTouched.value = false;
+  reader.value = null;
+  amountStore.reset();
 };
-
-const description = ref("");
-
-const isTouched = ref(false);
 
 const locationOptions = computed(() => {
   return commonStore.locations.map((location) => ({ label: location.name, value: location.id, taxRate: location.taxRate }));
 });
-const location = ref(null);
 
 watch(locationOptions, () => {
   location.value = locationOptions.value.length != 0 ? locationOptions.value[0] : null;
@@ -412,8 +396,6 @@ const readerOptions = computed(() => {
     }));
 });
 
-const reader = ref(null);
-
 watch(location, () => {
   reader.value = null;
 });
@@ -422,27 +404,19 @@ const fixedTax = computed(() => {
   return location.value ? numeral(location.value.taxRate).multiply(100).format("0.00") : 0;
 });
 
-const fixedTaxPrice = computed(() => {
-  return location.value
-    ? numeral(Math.ceil(Number(numeral(amount.value).multiply(location.value.taxRate).multiply(100).value())))
-        .divide(100)
-        .value()
-    : 0;
-});
-
-const afterTaxPrice = computed(() => {
-  return numeral(amount.value).add(fixedTaxPrice.value).value();
-});
-
 const totalAmount = computed(() => {
   if (paymentMethod.value === PaymentMethodEnum.Cash) {
     return afterTaxPrice.value;
   }
-  return numeral(amount.value).add(fixedTaxPrice).format("0.00");
+  return payByCardFee.value;
 });
 
 const isBelowMinimum = computed(() => {
   return totalAmount.value < commonStore.minimumAmount;
+});
+
+const payByCardFee = computed(() => {
+  return numeral(afterTaxPrice.value).add(patientPayFee.value).format("0.00");
 });
 
 const isFeeOpen = ref(false);

@@ -1,5 +1,5 @@
 <template>
-  <q-dialog :model-value="props.isFeeOpen" @show="onShow" @hide="onHide">
+  <q-dialog persistent :model-value="props.isFeeOpen" @show="onShow" @hide="onHide">
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
@@ -13,17 +13,17 @@
         <q-slider
           class="custom-slider q-mt-xl"
           style="padding: 0 20px"
-          v-model="firstModel"
+          v-model.number="merchantFeePercentage"
           color="teal"
-          :label-value="`${firstModel}%\n$0.25`"
+          :label-value="`${merchantFeePercentage}%\n${merchantFeeAmount}`"
           label-always
           marker-labels
           :min="0"
-          :max="3.5"
+          :max="+totalProcessingFeePercentage"
           :step="0.01"
         >
           <template v-slot:marker-label-group="scope">
-            <div :class="[`text-gray-800`, scope.markerList[0].classes]" :style="{ ...scope.markerList[0].style, cursor: 'pointer' }" @click="firstModel = scope.markerList[0].value">
+            <div :class="[`text-gray-800`, scope.markerList[0].classes]" :style="{ ...scope.markerList[0].style, cursor: 'pointer' }" @click="merchantFeePercentage = scope.markerList[0].value">
               <span class="text-gray-800 text-sm">
                 {{ scope.markerList[0].value }}
               </span>
@@ -31,7 +31,7 @@
             <div
               :class="[`text-gray-800`, scope.markerList[scope.markerList.length - 1].classes]"
               :style="{ ...scope.markerList[scope.markerList.length - 1].style, cursor: 'pointer' }"
-              @click="firstModel = scope.markerList[scope.markerList.length - 1].value"
+              @click="merchantFeePercentage = scope.markerList[scope.markerList.length - 1].value"
             >
               <span class="text-gray-800 text-sm"> {{ scope.markerList[scope.markerList.length - 1].value }}% </span>
             </div>
@@ -48,7 +48,7 @@
           <p class="text-sm text-gray-900 q-mr-nm">Merchant processing fee</p>
           <q-input
             type="number"
-            v-model.number="numberA"
+            v-model.number="merchantFeePercentage"
             min="0"
             step="0.05"
             class="custom-input q-mr-sm"
@@ -61,11 +61,11 @@
               <span class="text-md">%</span>
             </template>
           </q-input>
-          <p class="text-xss text-gray-700">/ 3.5%</p>
+          <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
           <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
           <q-input
             type="number"
-            v-model.number="numberA"
+            v-model.number="merchantFeeAmount"
             min="0"
             step="0.05"
             class="custom-input q-mr-sm"
@@ -78,13 +78,13 @@
               <span class="text-md">$</span>
             </template>
           </q-input>
-          <p class="text-xss text-gray-700">/ $0.10</p>
+          <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
         </div>
         <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
           <p class="text-sm text-gray-900 q-mr-nm">Patient processing fee</p>
           <q-input
             type="number"
-            v-model.number="numberA"
+            v-model.number="patientFeePercentage"
             min="0"
             step="0.05"
             class="custom-input q-mr-sm"
@@ -97,11 +97,11 @@
               <span class="text-md">%</span>
             </template>
           </q-input>
-          <p class="text-xss text-gray-700">/ 3.5%</p>
+          <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
           <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
           <q-input
             type="number"
-            v-model.number="numberA"
+            v-model.number="patientFeeAmount"
             min="0"
             step="0.05"
             class="custom-input q-mr-sm"
@@ -114,18 +114,18 @@
               <span class="text-md">$</span>
             </template>
           </q-input>
-          <p class="text-xss text-gray-700">/ $0.10</p>
+          <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
         </div>
         <div class="text-center q-mb-md">
-          <u class="text-teal-400 text-xs" style="cursor: pointer">Set patient processing fee to 0</u>
+          <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">Set patient processing fee to 0</u>
         </div>
         <div class="">
-          <p class="text-sm text-bold text-justify">On this $25.00 transaction, you pay $0.32, and patient pays $0.71</p>
+          <p class="text-sm text-bold text-justify">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
         </div>
       </q-card-section>
 
       <q-card-actions align="between" class="q-py-md q-px-lg">
-        <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
+        <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup @click="amountStore.resetToOldValue" />
         <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>Update</q-btn>
       </q-card-actions>
     </q-card>
@@ -197,7 +197,11 @@
 </style>
 
 <script setup>
-import { ref } from "vue";
+import numeral from "numeral";
+import { storeToRefs } from "pinia";
+import { useAmountStore } from "src/stores/amount-store";
+import { useCommonStore } from "src/stores/common-store";
+import { computed, watch } from "vue";
 const props = defineProps({
   isFeeOpen: {
     type: Boolean,
@@ -205,15 +209,82 @@ const props = defineProps({
   },
 });
 const emit = defineEmits(["update:isFeeOpen"]);
+const commonStore = useCommonStore();
+const amountStore = useAmountStore();
+
+const { amount, afterTaxPrice, merchantFeePercentage, merchantFeeAmount, patientFeePercentage, patientFeeAmount, patientPayFee } = storeToRefs(amountStore);
+
+const amountFixed = computed(() => {
+  return numeral(amount.value).format("0.00");
+});
+
+const totalProcessingFeePercentage = computed(() => {
+  if (!commonStore.organization) return 0;
+  return numeral(commonStore.organization.totalProcessingFeePercentage).multiply(100).format("0.0");
+});
+
+const totalProcessingFeeFixed = computed(() => {
+  if (!commonStore.organization) return 0;
+  return numeral(commonStore.organization.totalProcessingFeeFixed).format("0.00");
+});
+
+watch(totalProcessingFeePercentage, () => {
+  merchantFeePercentage.value = totalProcessingFeePercentage.value - 0;
+  patientFeePercentage.value = 0;
+});
+
+watch(totalProcessingFeeFixed, () => {
+  merchantFeeAmount.value = totalProcessingFeeFixed.value - 0;
+  patientFeeAmount.value = 0;
+});
+
+watch(merchantFeePercentage, () => {
+  if (!commonStore.organization) return;
+  if (+merchantFeePercentage.value > +totalProcessingFeePercentage.value) {
+    merchantFeePercentage.value = totalProcessingFeePercentage.value;
+  }
+  patientFeePercentage.value = numeral(totalProcessingFeePercentage.value).subtract(merchantFeePercentage.value).format("0.00");
+});
+
+watch(patientFeePercentage, () => {
+  if (!commonStore.organization) return;
+  if (+patientFeePercentage.value > +totalProcessingFeePercentage.value) {
+    merchantFeePercentage.value = totalProcessingFeePercentage.value;
+  }
+  merchantFeePercentage.value = numeral(totalProcessingFeePercentage.value).subtract(patientFeePercentage.value).format("0.00");
+});
+
+watch(merchantFeeAmount, () => {
+  if (!commonStore.organization) return;
+  if (+merchantFeeAmount.value > +totalProcessingFeeFixed.value) {
+    merchantFeeAmount.value = totalProcessingFeeFixed.value;
+  }
+  patientFeeAmount.value = numeral(totalProcessingFeeFixed.value).subtract(merchantFeeAmount.value).format("0.00");
+});
+
+watch(patientFeeAmount, () => {
+  if (!commonStore.organization) return;
+  if (+patientFeeAmount.value > +totalProcessingFeeFixed.value) {
+    patientFeeAmount.value = totalProcessingFeeFixed.value;
+  }
+  merchantFeeAmount.value = numeral(totalProcessingFeeFixed.value).subtract(patientFeeAmount.value).format("0.00");
+});
+
+const merchantPayFee = computed(() => {
+  return numeral(afterTaxPrice.value).multiply(merchantFeePercentage.value).divide(100).add(merchantFeeAmount.value).format("0.00");
+});
+
+function setPatientFee(value) {
+  patientFeePercentage.value = value;
+  patientFeeAmount.value = value;
+}
 
 function onShow() {
   emit("update:isFeeOpen", true);
+  amountStore.setOldValue();
 }
 
 function onHide() {
   emit("update:isFeeOpen", false);
 }
-
-const firstModel = ref(1);
-const numberA = ref("");
 </script>
