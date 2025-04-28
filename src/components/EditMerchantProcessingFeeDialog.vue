@@ -15,7 +15,7 @@
           style="padding: 0 20px"
           v-model.number="merchantFeePercentage"
           color="teal"
-          :label-value="`${merchantFeePercentage}%\n$${merchantAfterPercentage}`"
+          :label-value="`${merchantFeePercentageDisplay}%\n$${merchantAfterPercentage}`"
           label-always
           marker-labels
           :min="0"
@@ -43,12 +43,12 @@
         <q-separator />
       </q-card-section>
 
-      <q-card-section class="q-px-lg">
+      <q-card-section class="q-px-lg q-pb-sm">
         <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
           <p class="text-sm text-gray-900 q-mr-nm">Merchant processing fee</p>
           <q-input
             type="number"
-            v-model.number="merchantFeePercentage"
+            v-model.number="merchantFeePercentageDisplay"
             min="0"
             step="0.05"
             class="custom-input q-mr-sm"
@@ -120,7 +120,7 @@
           <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">Set patient processing fee to 0</u>
         </div>
         <div class="">
-          <p class="text-sm text-bold">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
+          <p class="text-sm text-bold" style="min-height: 42px">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
         </div>
       </q-card-section>
 
@@ -250,7 +250,7 @@ const totalProcessingFeeFixed = computed(() => {
 });
 
 watch(totalProcessingFeePercentage, () => {
-  merchantFeePercentage.value = totalProcessingFeePercentage.value - 0;
+  merchantFeePercentage.value = +(totalProcessingFeePercentage.value - 0);
   patientFeePercentage.value = 0;
 });
 
@@ -261,11 +261,11 @@ watch(totalProcessingFeeFixed, () => {
 
 watch(merchantFeePercentage, () => {
   if (+merchantFeePercentage.value < 0) {
-    merchantFeePercentage.value = numeral(0).format("0.00");
+    merchantFeePercentage.value = 0;
   }
   if (!commonStore.organization) return;
   if (+merchantFeePercentage.value > +totalProcessingFeePercentage.value) {
-    merchantFeePercentage.value = totalProcessingFeePercentage.value;
+    merchantFeePercentage.value = +totalProcessingFeePercentage.value;
   }
   patientFeePercentage.value = numeral(totalProcessingFeePercentage.value).subtract(merchantFeePercentage.value).format("0.00");
 });
@@ -276,9 +276,9 @@ watch(patientFeePercentage, () => {
   }
   if (!commonStore.organization) return;
   if (+patientFeePercentage.value > +totalProcessingFeePercentage.value) {
-    merchantFeePercentage.value = totalProcessingFeePercentage.value;
+    merchantFeePercentage.value = +totalProcessingFeePercentage.value;
   }
-  merchantFeePercentage.value = numeral(totalProcessingFeePercentage.value).subtract(patientFeePercentage.value).format("0.00");
+  merchantFeePercentage.value = numeral(totalProcessingFeePercentage.value).subtract(patientFeePercentage.value).value();
 });
 
 watch(merchantFeeAmount, () => {
@@ -301,6 +301,15 @@ watch(patientFeeAmount, () => {
     patientFeeAmount.value = totalProcessingFeeFixed.value;
   }
   merchantFeeAmount.value = numeral(totalProcessingFeeFixed.value).subtract(patientFeeAmount.value).format("0.00");
+});
+
+const merchantFeePercentageDisplay = computed({
+  get() {
+    return numeral(merchantFeePercentage.value).format("0.00");
+  },
+  set(value) {
+    merchantFeePercentage.value = value;
+  },
 });
 
 const merchantAfterPercentage = computed(() => {
