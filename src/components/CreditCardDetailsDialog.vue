@@ -97,8 +97,8 @@
 
         <q-card-section>
           <div class="row items-center justify-between">
-            <q-btn flat class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
-            <q-btn type="submit" unelevated class="custom-btn-action" color="orange-400"> Pay $27.21 </q-btn>
+            <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
+            <q-btn type="submit" unelevated no-caps class="custom-btn-action" color="orange-400"> Pay $27.21 </q-btn>
           </div>
         </q-card-section>
       </q-form>
@@ -130,7 +130,6 @@
 
 :deep(.custom-btn-action) {
   padding: 8px 16px;
-  text-transform: unset;
   border-radius: 6px;
 }
 </style>

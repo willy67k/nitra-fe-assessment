@@ -4,26 +4,27 @@
     <div>
       <q-select
         class="q-field-custom"
-        v-model="model"
-        :options="options"
+        v-model="location"
+        :options="locationOptions"
         borderless
         bg-color="gray-100"
         standout="bg-gray-100 text-black"
         dropdown-icon="fa-solid fa-chevron-down text-gray-600"
-        @update:model-value="onInputValue"
       >
         <template v-slot:prepend>
           <q-icon name="fa-solid fa-location-dot" class="text-gray-600" @click.stop.prevent />
         </template>
       </q-select>
     </div>
-    <div style="margin-left: auto">
-      <q-btn flat class="custom-btn-reset text-sm text-red-400" color="red-400" label="Reset Payment" />
-    </div>
+    <q-slide-transition>
+      <div v-show="isTouched" style="margin-left: auto">
+        <q-btn flat no-caps @click="reset" class="custom-btn-reset text-sm text-red-400" color="red-400" label="Reset Payment" />
+      </div>
+    </q-slide-transition>
   </q-toolbar>
   <q-card flat bordered class="full-card">
     <div class="card-left q-pt-8xl">
-      <div class="fit column content-center text-center">
+      <!-- <div class="fit column content-center text-center">
         <p class="text-gray-700 text-lg">Enter Amount</p>
         <p class="text-bold text-7xl">
           <sup class="text-bold text-4xl">
@@ -31,7 +32,34 @@
           </sup>
           <span class="text-bold text-7xl">0</span>
         </p>
-        <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
+        <div>
+          <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
+        </div>
+      </div> -->
+
+      <div class="row column items-center full-width">
+        <p class="text-gray-700 text-lg">Enter Amount</p>
+        <div>
+          <q-input
+            type="number"
+            v-model.number="amount"
+            @blur="() => (isTouched = true)"
+            @update:model-value="onInputValue"
+            min="0"
+            step="0.05"
+            class="custom-input"
+            input-class="text-black text-bold text-7xl"
+            bg-color="gray-50"
+            standout="bg-gray"
+          >
+            <template v-slot:prepend>
+              <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign q-mb-md"></i>
+            </template>
+          </q-input>
+        </div>
+        <div>
+          <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
+        </div>
       </div>
     </div>
     <q-card flat class="card-right q--avoid-card-border">
@@ -44,18 +72,18 @@
       <q-card-section>
         <div class="row justify-between q-px-md q-py-nm">
           <p class="text-xs text-gray-700">Subtotal</p>
-          <p class="text-xs text-gray-700">$0</p>
+          <p class="text-xs text-gray-700">${{ amount }}</p>
         </div>
         <div class="row justify-between q-px-md q-py-nm">
-          <p class="text-xs text-gray-700">Tax(6.00%)</p>
-          <p class="text-xs text-gray-700">$0</p>
+          <p class="text-xs text-gray-700">Tax({{ fixedTax }}%)</p>
+          <p class="text-xs text-gray-700">${{ fixedTaxPrice }}</p>
         </div>
 
         <q-separator color="teal-700" />
 
         <div class="row justify-between q-px-md q-py-lg">
           <p class="text-xs">Total</p>
-          <p class="text-xs">$0</p>
+          <p class="text-xs">${{ afterTaxPrice }}</p>
         </div>
 
         <div class="q-mb-lg">
@@ -65,6 +93,7 @@
             color="white"
             toggle-color="teal-100"
             style="border: 1px solid #a9d4d6; border-radius: 6px"
+            no-caps
             spread
             unelevated
             :options="[
@@ -75,7 +104,7 @@
             <template v-slot:cash>
               <div class="row items-center no-wrap">
                 <q-icon right class="custom-icon" name="fa-solid fa-sack-dollar text-teal-500" />
-                <span class="text-teal-700 text-xss">Pay by Cash $0</span>
+                <span class="text-teal-700 text-xss">Pay by Cash ${{ afterTaxPrice }}</span>
               </div>
             </template>
             <template v-slot:card>
@@ -99,11 +128,12 @@
         <q-separator color="teal-700" />
 
         <div class="row justify-between items-center q-px-md q-py-lg">
-          <p class="text-xs">Pay by Cash Total</p>
-          <p class="text-xl text-green-500 text-bold">$0</p>
+          <p v-if="paymentMethod === PaymentMethodEnum.Cash" class="text-xs">Pay by Cash Total</p>
+          <p v-else class="text-xs">Pay by Card Total</p>
+          <p :class="`text-xl text-bold ${isTouched && isBelowMinimum ? 'text-red-400' : 'text-green-500'}`">${{ totalAmount }}</p>
         </div>
         <q-slide-transition>
-          <p v-show="isBelowMinimum" class="text-xss text-red-500 q-px-md" style="position: absolute; margin-top: -20px">*Total amount falls below the required minimum of $0.50</p>
+          <p v-show="isTouched && isBelowMinimum" class="text-xss text-red-500 q-px-md" style="position: absolute; margin-top: -20px">*Total amount falls below the required minimum of $0.50</p>
         </q-slide-transition>
       </q-card-section>
 
@@ -113,24 +143,32 @@
         <q-select
           class="q-field-custom sub"
           style="display: inline-block"
-          v-model="model"
-          :options="options"
+          v-model="location"
+          :options="locationOptions"
           borderless
           standout="bg-gray-100 text-black"
           dropdown-icon="fa-solid fa-chevron-down fa-xs"
-          @update:model-value="onInputValue"
         >
           <template v-slot:prepend>
             <q-icon name="place" @click.stop.prevent />
           </template>
         </q-select>
 
-        <q-select standout="bg-gray" bg-color="gray-50" v-model="country" class="custom-select" input-class="text-black" :options="options" label="Device Reader">
+        <q-select
+          v-if="paymentMethod === PaymentMethodEnum.Card"
+          standout="bg-gray"
+          bg-color="gray-50"
+          v-model="reader"
+          class="custom-select"
+          input-class="text-black"
+          :options="readerOptions"
+          label="Device Reader"
+        >
           <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
               <q-item-section style="flex: auto">
-                <q-icon name="fa-solid fa-circle-dot text-green-500" />
-                <!-- <q-icon name="fa-solid fa-circle-xmark text-gray-400" /> -->
+                <q-icon v-if="scope.opt.status === 'online'" name="fa-solid fa-circle-dot text-green-500" />
+                <q-icon v-else name="fa-solid fa-circle-xmark text-gray-400" />
               </q-item-section>
               <q-item-section style="margin-left: 12px">
                 <q-item-label>{{ scope.opt.label }}</q-item-label>
@@ -144,7 +182,7 @@
         <q-slide-transition>
           <div v-show="paymentMethod === PaymentMethodEnum.Cash">
             <div v-if="paymentMethod === PaymentMethodEnum.Cash">
-              <q-btn @click="() => null" unelevated icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
+              <q-btn @click="() => null" unelevated no-caps icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
                 <span class="text-sm">Log Payment</span>
               </q-btn>
             </div>
@@ -153,10 +191,10 @@
         <q-slide-transition>
           <div v-show="paymentMethod === PaymentMethodEnum.Card">
             <div v-if="paymentMethod === PaymentMethodEnum.Card">
-              <q-btn @click="() => (isReaderOpen = true)" unelevated icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm">
+              <q-btn @click="() => (isReaderOpen = true)" unelevated no-caps icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm" :disable="!reader">
                 <span class="text-sm">Initiate Payment on Reader</span>
               </q-btn>
-              <q-btn @click="() => (isCreditOpen = true)" unelevated icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
+              <q-btn @click="() => (isCreditOpen = true)" unelevated no-caps icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
                 <span class="text-sm text-orange-400">Input Card Number Manually</span>
               </q-btn>
             </div>
@@ -231,6 +269,41 @@
 .custom-icon {
   font-size: 12px;
   margin-right: 8px;
+  margin-left: 0px;
+}
+
+:deep(.custom-input) {
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type="number"] {
+    -moz-appearance: textfield;
+    -webkit-appearance: none; /* WebKit-based browsers */
+    appearance: none;
+  }
+
+  .q-field__control,
+  .q-field__control::before,
+  .q-field__marginal {
+    background-color: transparent;
+  }
+
+  .q-field__marginal {
+    padding-right: 4px;
+  }
+
+  &.q-field--highlighted {
+    .q-field__control {
+      background-color: transparent;
+      box-shadow: none;
+    }
+    .q-field__marginal {
+    }
+  }
 }
 
 :deep(.custom-text-area) {
@@ -249,7 +322,6 @@
 
 :deep(.custom-btn) {
   border-radius: 6px;
-  text-transform: unset;
   .q-icon {
     margin-right: 8px;
     font-size: 16px;
@@ -258,7 +330,6 @@
 
 :deep(.custom-btn-reset) {
   padding: 8px 16px;
-  text-transform: unset;
   border-radius: 6px;
 }
 
@@ -283,24 +354,97 @@
 import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
 import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
 import PaymentReaderDialog from "components/PaymentReaderDialog.vue";
-import { ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { PaymentMethodEnum } from "src/enums/payment-method";
+import { useCommonStore } from "src/stores/common-store";
+import numeral from "numeral";
 
-const model = ref("New York Clinic");
+const commonStore = useCommonStore();
+
 const paymentMethod = ref(PaymentMethodEnum.Cash);
+
+const amount = ref(0);
 const onInputValue = (value) => {
-  console.log("Selected value:", value);
+  value = value.toString();
+  if (value.includes(".")) {
+    const parts = value.split(".");
+    parts[1] = parts[1].slice(0, 2);
+    value = parts.join(".");
+  }
+  amount.value = value;
+};
+
+const reset = () => {
+  amount.value = 0;
+  isTouched.value = false;
 };
 
 const description = ref("");
 
-const isBelowMinimum = ref(true);
+const isTouched = ref(false);
 
-const options = [
-  { label: "New York Clinic", value: "1" },
-  { label: "Option 2", value: "option2" },
-  { label: "Option 3", value: "option3" },
-];
+const locationOptions = computed(() => {
+  return commonStore.locations.map((location) => ({ label: location.name, value: location.id, taxRate: location.taxRate }));
+});
+const location = ref(null);
+
+watch(locationOptions, () => {
+  location.value = locationOptions.value.length != 0 ? locationOptions.value[0] : null;
+});
+
+const readerOptions = computed(() => {
+  if (!location.value)
+    return [
+      {
+        label: "No Device Reader Available",
+        value: 0,
+        disable: true,
+      },
+    ];
+  return commonStore.paymentReaders
+    .filter((reader) => reader.locationId === location.value.value)
+    .map((reader) => ({
+      label: reader.label,
+      value: reader.readerId,
+      status: reader.status,
+      locationId: reader.locationId,
+      disable: reader.status !== "online" && true,
+    }));
+});
+
+const reader = ref(null);
+
+watch(location, () => {
+  reader.value = null;
+});
+
+const fixedTax = computed(() => {
+  return location.value ? numeral(location.value.taxRate).multiply(100).format("0.00") : 0;
+});
+
+const fixedTaxPrice = computed(() => {
+  return location.value
+    ? numeral(Math.ceil(Number(numeral(amount.value).multiply(location.value.taxRate).multiply(100).value())))
+        .divide(100)
+        .value()
+    : 0;
+});
+
+const afterTaxPrice = computed(() => {
+  return numeral(amount.value).add(fixedTaxPrice.value).value();
+});
+
+const totalAmount = computed(() => {
+  if (paymentMethod.value === PaymentMethodEnum.Cash) {
+    return afterTaxPrice.value;
+  }
+  return numeral(amount.value).add(fixedTaxPrice).format("0.00");
+});
+
+const isBelowMinimum = computed(() => {
+  return totalAmount.value < commonStore.minimumAmount;
+});
+
 const isFeeOpen = ref(false);
 const isCreditOpen = ref(false);
 const isReaderOpen = ref(false);

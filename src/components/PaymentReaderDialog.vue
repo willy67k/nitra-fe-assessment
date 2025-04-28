@@ -1,5 +1,5 @@
 <template>
-  <q-dialog :model-value="props.isReaderOpen" @show="onShow" @hide="onHide" class="full-card">
+  <q-dialog persistent :model-value="props.isReaderOpen" @show="onShow" @hide="onHide" class="full-card">
     <q-card class="q-pt-lg" style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pb-4xl q-px-lg">
         <div class="text-center">
@@ -22,23 +22,16 @@
       <q-separator />
 
       <q-card-actions align="between" class="q-py-md q-px-lg">
-        <q-btn flat class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
-        <q-btn unelevated class="custom-btn-action" color="orange-400" v-close-popup>Process Payment</q-btn>
+        <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
+        <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>Process Payment</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
 
 <style lang="scss" scoped>
-:deep(.custom-btn) {
-  padding: 8px 16px;
-  text-transform: unset;
-  border-radius: 6px;
-}
-
 :deep(.custom-btn-action) {
   padding: 8px 16px;
-  text-transform: unset;
   border-radius: 6px;
 }
 </style>
