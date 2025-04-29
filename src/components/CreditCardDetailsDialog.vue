@@ -26,14 +26,15 @@
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
-                v-model.number="cardNumber"
+                v-model="cardNumber"
+                @update:model-value="onUpdateCardNumber"
                 class="custom-input"
                 input-class="text-black"
                 label="Card Number"
                 lazy-rules
                 :rules="[
                   (val) => {
-                    return (val && val > 0) || 'Please type your card number';
+                    return (val && val.length > 18) || 'Please type your card number';
                   },
                 ]"
               />
@@ -43,13 +44,14 @@
                 standout="bg-gray"
                 bg-color="gray-50"
                 v-model="expirationDate"
+                @update:model-value="onUpdateExpirationDate"
                 class="custom-input"
                 input-class="text-black"
                 label="Expiration Date"
                 lazy-rules
                 :rules="[
                   (val) => {
-                    return (val && val > 0) || 'Please type your expiration date';
+                    return (val && val.length > 4) || 'Please type your expiration date';
                   },
                 ]"
               />
@@ -58,12 +60,13 @@
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
-                v-model.number="cvc"
+                v-model="cvc"
+                @update:model-value="(value) => onUpdateOnlyNumber(value, 'cvc')"
                 class="custom-input"
                 input-class="text-black"
                 label="CVC"
                 lazy-rules
-                :rules="[(val) => (val && val > 0) || 'Please type CVC on card']"
+                :rules="[(val) => (val && val.length > 0) || 'Please type CVC on card']"
               />
             </div>
             <div class="col-6 q-mb-sm" style="padding: 0 6px">
@@ -82,12 +85,13 @@
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
-                v-model.number="zip"
+                v-model="zip"
+                @update:model-value="(value) => onUpdateOnlyNumber(value, 'zip')"
                 class="custom-input"
                 input-class="text-black"
                 label="ZIP"
                 lazy-rules
-                :rules="[(val) => (val && val > 0) || 'Please type your ZIP code']"
+                :rules="[(val) => (val && val.length > 0) || 'Please type your ZIP code']"
               />
             </div>
           </div>
@@ -98,15 +102,10 @@
         <q-card-section>
           <div class="row items-center justify-between">
             <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
-            <q-btn type="submit" unelevated no-caps class="custom-btn-action" color="orange-400"> Pay $27.21 </q-btn>
+            <q-btn type="submit" unelevated no-caps class="custom-btn-action" color="orange-400"> Pay ${{ totalAmount }} </q-btn>
           </div>
         </q-card-section>
       </q-form>
-
-      <!-- <q-card-actions align="between" class="q-py-md q-px-lg">
-        <q-btn flat style="padding: 8px 16px; text-transform: unset; border-radius: 6px" color="gray-600" label="Cancel" v-close-popup />
-        <q-btn unelevated style="padding: 8px 16px; text-transform: unset; border-radius: 6px" color="orange-400" v-close-popup> Update </q-btn>
-      </q-card-actions> -->
     </q-card>
   </q-dialog>
 </template>
@@ -135,18 +134,20 @@
 </style>
 
 <script setup>
-import { useQuasar } from "quasar";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 const props = defineProps({
   isCreditOpen: {
     type: Boolean,
     default: false,
   },
+  totalAmount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 const emit = defineEmits(["update:isCreditOpen"]);
 
-const $q = useQuasar();
 const name = ref(null);
 const cardNumber = ref(null);
 const expirationDate = ref(null);
@@ -159,22 +160,31 @@ const options = [
   { label: "Mexico", value: "mx" },
 ];
 function onSubmit() {
-  if (!name.value) {
-    console.log($q);
-    $q.notify({
-      color: "red-5",
-      textColor: "white",
-      icon: "warning",
-      message: "You need to accept the license and terms first",
-    });
-  } else {
-    $q.notify({
-      color: "green-4",
-      textColor: "white",
-      icon: "cloud_done",
-      message: "Submitted",
-    });
+  onReset();
+  onHide();
+}
+
+function onUpdateCardNumber(value) {
+  value = value.replace(/\D/g, "");
+  value = value.slice(0, 16);
+  value = value.match(/.{1,4}/g)?.join(" ") || "";
+  cardNumber.value = value;
+}
+
+function onUpdateExpirationDate(value) {
+  value = value.replace(/\D/g, "");
+  value = value.slice(0, 4);
+  if (value.length > 2) {
+    value = value.slice(0, 2) + "/" + value.slice(2);
   }
+  expirationDate.value = value;
+}
+
+const obj = reactive({ cvc, zip });
+
+function onUpdateOnlyNumber(value, target) {
+  value = value.replace(/\D/g, "");
+  obj[target] = value;
 }
 
 function onReset() {

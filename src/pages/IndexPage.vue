@@ -181,7 +181,7 @@
   </q-card>
 
   <edit-merchant-processing-fee-dialog v-model:is-fee-open="isFeeOpen" />
-  <credit-card-details-dialog v-model:is-credit-open="isCreditOpen" />
+  <credit-card-details-dialog v-model:is-credit-open="isCreditOpen" :totalAmount="totalAmount" />
   <payment-reader-dialog v-model:is-reader-open="isReaderOpen" />
 </template>
 
@@ -332,12 +332,12 @@ const inputWidth = ref(60);
 const onInputValue = async ($event) => {
   let value = $event.target.value;
   value = value
-    .replace(/[^\d.]/g, "") // 去掉非數字非小數點
-    .replace(/^(\d*)\.(\d*)\.(.*)/, "$1.$2") // 只保留第一個小數點
-    .replace(/^0+(\d)/, "$1"); // 去除前面多餘的0（可選）
+    .replace(/[^\d.]/g, "")
+    .replace(/^(\d*)\.(\d*)\.(.*)/, "$1.$2")
+    .replace(/^0+(\d)/, "$1");
   if (value.includes(".")) {
     const parts = value.split(".");
-    parts[1] = parts[1].slice(0, 2); // 只取小數點後2位
+    parts[1] = parts[1].slice(0, 2);
     value = parts.join(".");
   }
 
