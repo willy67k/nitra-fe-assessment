@@ -110,3 +110,40 @@ $custom_font_sizes: (
     font-size: $size;
   }
 }
+
+$grid-breakpoints: (
+  md: 767px,
+);
+
+@each $grid, $point in $grid-breakpoints {
+  @media screen and (max-width: $point) {
+    @each $name, $size in $custom_font_sizes {
+      .#{$grid}\:text-#{$name} {
+        font-size: $size;
+      }
+    }
+  }
+}
+
+$text-aligns: (center, left, right);
+
+@each $grid, $point in $grid-breakpoints {
+  @each $align in $text-aligns {
+    @media screen and (max-width: $point) {
+      .#{$grid}\:text-#{ $align} {
+        text-align: $align;
+      }
+    }
+  }
+}
+
+@each $grid, $point in $grid-breakpoints {
+  @media screen and (max-width: $point) {
+    .#{$grid}\:no-wrap {
+      flex-wrap: nowrap;
+    }
+    .#{$grid}\:wrap {
+      flex-wrap: wrap;
+    }
+  }
+}

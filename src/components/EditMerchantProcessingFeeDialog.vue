@@ -1,15 +1,15 @@
 <template>
-  <q-dialog persistent :model-value="props.isFeeOpen" @show="onShow" @hide="onHide">
+  <q-dialog persistent class="merchant-dialog" :model-value="props.isFeeOpen" @show="onShow" @hide="onHide">
     <q-card style="width: 500px; border-radius: 8px">
-      <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
-        <div class="row items-center justify-between q-mb-md">
-          <h5 class="text-bold">{{ $t("msg.merchant.EditMerchantProcessingFee") }}</h5>
+      <q-card-section class="q-pt-lg q-px-lg q-pb-xs md:q-pt-md md:q-px-md">
+        <div class="row items-center justify-between q-mb-md md:q-mb-nm">
+          <h5 class="text-bold md:text-xl">{{ $t("msg.merchant.EditMerchantProcessingFee") }}</h5>
           <q-btn class="text-gray-300" icon="close" flat round dense v-close-popup />
         </div>
-        <p class="text-xs text-gray-700">{{ $t("msg.merchant.OnlyAppliesToThisTransaction") }}</p>
+        <p class="text-xs text-gray-700 md:text-center">{{ $t("msg.merchant.OnlyAppliesToThisTransaction") }}</p>
       </q-card-section>
 
-      <q-card-section class="q-px-lg">
+      <q-card-section class="q-px-lg md:q-px-md">
         <q-slider
           class="custom-slider q-mt-xl"
           style="padding: 0 20px"
@@ -39,82 +39,86 @@
         </q-slider>
       </q-card-section>
 
-      <q-card-section class="q-px-lg q-pt-none q-pb-xs">
+      <q-card-section class="q-px-lg q-pt-none q-pb-xs md:q-px-md">
         <q-separator />
       </q-card-section>
 
-      <q-card-section class="q-px-lg q-pb-sm">
-        <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-nm">{{ $t("msg.merchant.MerchantProcessingFee") }}</p>
-          <q-input
-            type="number"
-            v-model.number="merchantFeePercentageDisplay"
-            min="0"
-            step="0.05"
-            class="custom-input q-mr-sm"
-            input-class="text-bold text-black text-md"
-            bg-color="gray-50"
-            standout="bg-gray"
-            :dense="true"
-          >
-            <template v-slot:append>
-              <span class="text-md">%</span>
-            </template>
-          </q-input>
-          <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
-          <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
-          <q-input
-            type="number"
-            v-model.number="merchantFeeAmount"
-            min="0"
-            step="0.05"
-            class="custom-input q-mr-sm"
-            input-class="text-bold text-black text-md text-right"
-            bg-color="gray-50"
-            standout="bg-gray"
-            :dense="true"
-          >
-            <template v-slot:prepend>
-              <span class="text-md">$</span>
-            </template>
-          </q-input>
-          <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
+      <q-card-section class="q-px-lg q-pb-sm md:q-px-md">
+        <div class="row items-center no-wrap q-mb-nm md:wrap" style="white-space: nowrap">
+          <p class="text-sm text-gray-900 q-mr-nm md:text-center">{{ $t("msg.merchant.MerchantProcessingFee") }}</p>
+          <div class="row items-center no-wrap" style="white-space: nowrap">
+            <q-input
+              type="number"
+              v-model.number="merchantFeePercentageDisplay"
+              min="0"
+              step="0.05"
+              class="custom-input q-mr-sm"
+              input-class="text-bold text-black text-md"
+              bg-color="gray-50"
+              standout="bg-gray"
+              :dense="true"
+            >
+              <template v-slot:append>
+                <span class="text-md">%</span>
+              </template>
+            </q-input>
+            <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
+            <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
+            <q-input
+              type="number"
+              v-model.number="merchantFeeAmount"
+              min="0"
+              step="0.05"
+              class="custom-input q-mr-sm"
+              input-class="text-bold text-black text-md text-right"
+              bg-color="gray-50"
+              standout="bg-gray"
+              :dense="true"
+            >
+              <template v-slot:prepend>
+                <span class="text-md">$</span>
+              </template>
+            </q-input>
+            <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
+          </div>
         </div>
-        <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-nm">{{ $t("msg.merchant.PatientProcessingFee") }}</p>
-          <q-input
-            type="number"
-            v-model.number="patientFeePercentage"
-            min="0"
-            step="0.05"
-            class="custom-input q-mr-sm"
-            input-class="text-bold text-black text-md"
-            bg-color="gray-50"
-            standout="bg-gray"
-            :dense="true"
-          >
-            <template v-slot:append>
-              <span class="text-md">%</span>
-            </template>
-          </q-input>
-          <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
-          <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
-          <q-input
-            type="number"
-            v-model.number="patientFeeAmount"
-            min="0"
-            step="0.05"
-            class="custom-input q-mr-sm"
-            input-class="text-bold text-black text-md text-right"
-            bg-color="gray-50"
-            standout="bg-gray"
-            :dense="true"
-          >
-            <template v-slot:prepend>
-              <span class="text-md">$</span>
-            </template>
-          </q-input>
-          <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
+        <div class="row justify-center items-center no-wrap q-mb-nm md:wrap" style="white-space: nowrap">
+          <p class="text-sm text-gray-900 q-mr-nm md:text-center">{{ $t("msg.merchant.PatientProcessingFee") }}</p>
+          <div class="row items-center no-wrap" style="white-space: nowrap">
+            <q-input
+              type="number"
+              v-model.number="patientFeePercentage"
+              min="0"
+              step="0.05"
+              class="custom-input q-mr-sm"
+              input-class="text-bold text-black text-md"
+              bg-color="gray-50"
+              standout="bg-gray"
+              :dense="true"
+            >
+              <template v-slot:append>
+                <span class="text-md">%</span>
+              </template>
+            </q-input>
+            <p class="text-xss text-gray-700">/ {{ totalProcessingFeePercentage }}%</p>
+            <i class="fa-solid fa-plus text-xs text-gray-700 q-mx-xs" style="opacity: 0.4"></i>
+            <q-input
+              type="number"
+              v-model.number="patientFeeAmount"
+              min="0"
+              step="0.05"
+              class="custom-input q-mr-sm"
+              input-class="text-bold text-black text-md text-right"
+              bg-color="gray-50"
+              standout="bg-gray"
+              :dense="true"
+            >
+              <template v-slot:prepend>
+                <span class="text-md">$</span>
+              </template>
+            </q-input>
+            <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
+          </div>
         </div>
         <div class="text-center q-mb-md">
           <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">{{ $t("msg.merchant.SetPatientProcessingFeeTo") }} 0</u>
@@ -132,13 +136,23 @@
         </div>
       </q-card-section>
 
-      <q-card-actions align="between" class="q-py-md q-px-lg">
+      <q-card-actions align="between" class="q-py-md q-px-lg md:q-px-md">
         <q-btn flat no-caps class="custom-btn-action" color="gray-600" :label="$t('common.Cancel')" v-close-popup @click="amountStore.resetToOldValue" />
         <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>{{ $t("common.Update") }}</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
+
+<style lang="scss">
+.merchant-dialog {
+  .q-dialog__inner {
+    @media screen and (max-width: 767px) {
+      padding: 8px;
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 :deep(.custom-slider) {

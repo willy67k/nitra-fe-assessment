@@ -33,7 +33,7 @@
           <input type="number" :value="amount" @input="onInputValue" @blur="isTouched = true" class="custom-input text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" />
           <span ref="inputShadow" class="text-black text-bold text-7xl" style="position: absolute; visibility: hidden; white-space: pre">{{ amount }}</span>
         </div>
-        <div>
+        <div style="width: 100%; max-width: 400px" class="q-px-md q-pb-md">
           <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
         </div>
       </div>
@@ -225,25 +225,40 @@
 }
 
 .full-card {
+  border: 1px solid #e0e0e0;
   border-radius: 8px;
   padding: 0;
   height: calc(100vh - 104px);
   display: flex;
+
+  @media screen and (max-width: 767px) {
+    flex-direction: column;
+    height: auto;
+  }
 }
+.q-card {
+  .card-left {
+    width: 100%;
+    border-right: 1px solid #e0e0e0;
+    border-radius: 0px !important;
+    height: 100%;
+    display: flex;
 
-.card-left {
-  width: 100%;
-  border-right: 1px solid #e0e0e0;
-  height: 100%;
+    @media screen and (max-width: 767px) {
+      border-bottom: 1px solid #e0e0e0 !important;
+      border-right: none;
+    }
+  }
 
-  display: flex;
-}
+  .card-right {
+    width: 344px;
+    height: 100%;
+    flex: 1 0 344px;
 
-.card-right {
-  width: 344px;
-  border-left: 1px solid #e0e0e0;
-  height: 100%;
-  flex: 1 0 344px;
+    @media screen and (max-width: 767px) {
+      width: 100%;
+    }
+  }
 }
 
 .custom-icon {
@@ -271,7 +286,8 @@
 }
 
 :deep(.custom-text-area) {
-  width: 400px;
+  width: 100%;
+
   .q-field__control {
     &::before,
     &::after {

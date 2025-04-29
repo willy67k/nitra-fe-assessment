@@ -32,6 +32,63 @@ $new-spaces: (
 
 $spaces: map.merge(q.$spaces, $new-spaces);
 
+$grid-breakpoints: (
+  md: 767px,
+);
+
+$paddings: (
+  pt: padding-top,
+  pl: padding-left,
+  pr: padding-right,
+  pb: padding-bottom,
+  px: (
+    padding-left,
+    padding-right,
+  ),
+  py: (
+    padding-top,
+    padding-bottom,
+  ),
+);
+
+$margins: (
+  mt: margin-top,
+  ml: margin-left,
+  mr: margin-right,
+  mb: margin-bottom,
+  mx: (
+    margin-left,
+    margin-right,
+  ),
+  my: (
+    margin-top,
+    margin-bottom,
+  ),
+);
+
+@each $grid, $point in $grid-breakpoints {
+  @each $name, $sizes in $spaces {
+    @each $className, $styles in $paddings {
+      @media screen and (max-width: $point) {
+        .#{$grid}\:q-#{$className}-#{$name} {
+          @each $style in $styles {
+            #{$style}: map-get($sizes, y);
+          }
+        }
+      }
+    }
+    @each $className, $styles in $margins {
+      @media screen and (max-width: $point) {
+        .#{$grid}\:q-#{$className}-#{$name} {
+          @each $style in $styles {
+            #{$style}: map-get($sizes, y);
+          }
+        }
+      }
+    }
+  }
+}
+
 $primary: #1976d2;
 $secondary: #26a69a;
 $accent: #9c27b0;
