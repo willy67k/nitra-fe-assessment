@@ -1,16 +1,16 @@
 <template>
-  <q-dialog :model-value="props.isCreditOpen" @show="onShow" @hide="onHide">
+  <q-dialog class="credit-dialog" :model-value="props.isCreditOpen" @show="onShow" @hide="onHide">
     <q-card style="width: 500px; border-radius: 8px">
-      <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
-        <div class="row items-center justify-between q-mb-md">
-          <h5 class="text-bold">{{ $t("msg.credit.CreditCardDetails") }}</h5>
+      <q-card-section class="q-pt-lg q-px-lg q-pb-xs q-mb-md md:q-pt-md md:q-px-md">
+        <div class="row items-center justify-between">
+          <h5 class="text-bold md:text-xl">{{ $t("msg.credit.CreditCardDetails") }}</h5>
           <q-btn class="text-gray-300" icon="close" flat round dense v-close-popup />
         </div>
       </q-card-section>
       <q-form @submit="onSubmit" @reset="onReset">
-        <q-card-section class="q-px-lg q-pb-xs">
-          <div class="row" style="margin: 0 -6px">
-            <div class="col-12 q-mb-sm" style="padding: 0 6px">
+        <q-card-section class="q-px-lg q-pb-xs md:q-px-md md:q-pt-none">
+          <div class="custom-row row" style="margin: 0 -6px">
+            <div class="col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -22,7 +22,7 @@
                 :rules="[(val) => (val && val.length > 0) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.NameOnCard')]"
               />
             </div>
-            <div class="col-12 q-mb-sm" style="padding: 0 6px">
+            <div class="col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -39,7 +39,7 @@
                 ]"
               />
             </div>
-            <div class="col-6 q-mb-sm" style="padding: 0 6px">
+            <div class="col-6 md:col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -56,7 +56,7 @@
                 ]"
               />
             </div>
-            <div class="col-6 q-mb-sm" style="padding: 0 6px">
+            <div class="col-6 md:col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -69,7 +69,7 @@
                 :rules="[(val) => (val && val.length > 0) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.CVC')]"
               />
             </div>
-            <div class="col-6 q-mb-sm" style="padding: 0 6px">
+            <div class="col-6 md:col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-select
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -81,7 +81,7 @@
                 :rules="[(val) => val || $t('common.PleaseTypeYour') + ' ' + $t('common.Country')]"
               />
             </div>
-            <div class="col-6 q-mb-sm" style="padding: 0 6px">
+            <div class="col-6 md:col-12 q-mb-sm md:q-mb-nm" style="padding: 0 6px">
               <q-input
                 standout="bg-gray"
                 bg-color="gray-50"
@@ -110,7 +110,30 @@
   </q-dialog>
 </template>
 
+<style lang="scss">
+.credit-dialog {
+  .q-dialog__inner {
+    @media screen and (max-width: 767px) {
+      padding: 8px;
+    }
+  }
+}
+</style>
+
 <style lang="scss" scoped>
+:deep(.custom-row) {
+  .q-field {
+    @media screen and (max-width: 767px) {
+      padding-bottom: 0;
+    }
+  }
+  .q-field__bottom {
+    @media screen and (max-width: 767px) {
+      display: none;
+    }
+  }
+}
+
 :deep(.custom-input) {
   &.q-field--highlighted {
     .q-field__control {

@@ -1,18 +1,18 @@
 <template>
-  <q-dialog persistent :model-value="props.isReaderOpen" @show="onShow" @hide="onHide" class="full-card">
+  <q-dialog persistent class="reader-dialog" :model-value="props.isReaderOpen" @show="onShow" @hide="onHide">
     <q-card class="q-pt-lg" style="width: 500px; border-radius: 8px">
-      <q-card-section class="q-pb-4xl q-px-lg">
+      <q-card-section class="q-pb-4xl q-px-lg md:q-px-md">
         <div class="text-center">
           <img src="src/assets/payment.svg" style="width: 63px" alt="payment" />
         </div>
       </q-card-section>
 
-      <q-card-section class="q-px-lg">
+      <q-card-section class="q-px-lg md:q-px-md">
         <p class="text-bold text-center q-mb-sm"><q-icon name="fa-solid fa-eye text-gray-700 q-mr-sm q-mb-xs" />{{ $t("msg.reader.ReviewDetailsWithPatient") }}</p>
         <p class="text-sm text-gray-700 text-center">{{ $t("msg.reader.ReviewDetailsOfThisTransaction") }}</p>
       </q-card-section>
 
-      <q-card-section class="q-px-lg q-pb-lg q-mb-md">
+      <q-card-section class="q-px-lg q-pb-lg q-mb-md md:q-px-md">
         <p class="text-sm text-teal-900 bg-teal-50 text-center q-py-nm q-mb-xs" style="border-radius: 6px">
           {{ $t("msg.reader.AutoProcessingIn") }} <b>{{ timeout }}{{ $t("common.second_s") }}</b>
         </p>
@@ -21,13 +21,23 @@
 
       <q-separator />
 
-      <q-card-actions align="between" class="q-py-md q-px-lg">
+      <q-card-actions align="between" class="q-py-md q-px-lg md:q-px-md">
         <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
         <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>{{ $t("msg.reader.ProcessPayment") }}</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>
 </template>
+
+<style lang="scss">
+.reader-dialog {
+  .q-dialog__inner {
+    @media screen and (max-width: 767px) {
+      padding: 8px;
+    }
+  }
+}
+</style>
 
 <style lang="scss" scoped>
 :deep(.custom-btn-action) {

@@ -1,5 +1,5 @@
 <template>
-  <q-toolbar style="padding: 0">
+  <q-toolbar class="custom-toolbar">
     <h5 class="text-black text-bold q-mr-lg">{{ $t("msg.home.CollectPayment") }}</h5>
     <div>
       <q-select
@@ -23,10 +23,10 @@
     </q-slide-transition>
   </q-toolbar>
   <q-card flat bordered class="full-card">
-    <div class="card-left q-pt-8xl">
+    <div class="card-left q-pt-8xl md:q-pt-lg">
       <div class="row column items-center full-width">
         <p class="text-gray-700 text-lg q-mb-lg">{{ $t("msg.home.EnterAmount") }}</p>
-        <div class="q-mb-6xl" style="position: relative">
+        <div class="q-mb-6xl md:q-mb-lg" style="position: relative">
           <sup style="position: relative; right: 4px; top: -16px">
             <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign"></i>
           </sup>
@@ -190,6 +190,28 @@
 </template>
 
 <style lang="scss" scoped>
+.custom-toolbar {
+  padding: 0;
+
+  @media screen and (max-width: 767px) {
+    justify-content: space-between;
+    flex-wrap: wrap;
+    > :nth-child(1) {
+      margin: 0 0 20px;
+    }
+
+    > :nth-child(2) {
+      margin-bottom: 16px;
+      width: 100%;
+      order: 3;
+    }
+    > :nth-child(3) {
+      margin: 0 0 20px;
+      order: 2;
+    }
+  }
+}
+
 :deep(.q-field-custom) {
   &.sub {
     .q-field__control {

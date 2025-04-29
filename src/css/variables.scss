@@ -147,3 +147,16 @@ $text-aligns: (center, left, right);
     }
   }
 }
+
+@for $i from 1 through 12 {
+  $divide: $i / 12;
+  @each $grid, $point in $grid-breakpoints {
+    @media screen and (max-width: $point) {
+      .row {
+        > .#{$grid}\:col-#{$i} {
+          width: calc(100% * $divide);
+        }
+      }
+    }
+  }
+}
