@@ -25,23 +25,13 @@
   <q-card flat bordered class="full-card">
     <div class="card-left q-pt-8xl">
       <div class="row column items-center full-width">
-        <p class="text-gray-700 text-lg">Enter Amount</p>
-        <div>
-          <q-input
-            type="number"
-            v-model.number="amount"
-            @blur="() => (isTouched = true)"
-            min="0"
-            step="0.05"
-            class="custom-input"
-            input-class="text-black text-bold text-7xl"
-            bg-color="gray-50"
-            standout="bg-gray"
-          >
-            <template v-slot:prepend>
-              <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign q-mb-md"></i>
-            </template>
-          </q-input>
+        <p class="text-gray-700 text-lg q-mb-lg">Enter Amount</p>
+        <div class="q-mb-6xl" style="position: relative">
+          <sup style="position: relative; right: 4px; top: -16px">
+            <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign"></i>
+          </sup>
+          <input type="number" :value="amount" @input="onInputValue" class="custom-input text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" />
+          <span ref="inputShadow" class="text-black text-bold text-7xl" style="position: absolute; visibility: hidden; white-space: pre">{{ amount }}</span>
         </div>
         <div>
           <q-input v-model="description" type="textarea" class="custom-text-area" rows="4" filled placeholder="Description (Optional)" />
@@ -258,35 +248,21 @@
   margin-left: 0px;
 }
 
-:deep(.custom-input) {
-  input::-webkit-outer-spin-button,
-  input::-webkit-inner-spin-button {
+.custom-input {
+  height: 55px;
+  outline: none;
+  border: none;
+
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
 
-  /* Firefox */
-  input[type="number"] {
+  &[type="number"] {
     -moz-appearance: textfield;
     -webkit-appearance: none; /* WebKit-based browsers */
     appearance: none;
-  }
-
-  .q-field__control,
-  .q-field__control::before,
-  .q-field__marginal {
-    background-color: transparent;
-  }
-
-  .q-field__marginal {
-    padding-right: 4px;
-  }
-
-  &.q-field--highlighted {
-    .q-field__control {
-      background-color: transparent;
-      box-shadow: none;
-    }
   }
 }
 
@@ -335,7 +311,7 @@
 </style>
 
 <script setup>
-import { computed, ref, watch } from "vue";
+import { computed, nextTick, ref, watch } from "vue";
 import numeral from "numeral";
 import EditMerchantProcessingFeeDialog from "components/EditMerchantProcessingFeeDialog.vue";
 import CreditCardDetailsDialog from "components/CreditCardDetailsDialog.vue";
@@ -349,6 +325,28 @@ const commonStore = useCommonStore();
 const amountStore = useAmountStore();
 
 const { paymentMethod, amount, description, isTouched, location, reader, fixedTaxPrice, afterTaxPrice, patientPayFee } = storeToRefs(amountStore);
+
+const inputShadow = ref(null);
+const inputWidth = ref(60);
+
+const onInputValue = async ($event) => {
+  let value = $event.target.value;
+  value = value
+    .replace(/[^\d.]/g, "") // 去掉非數字非小數點
+    .replace(/^(\d*)\.(\d*)\.(.*)/, "$1.$2") // 只保留第一個小數點
+    .replace(/^0+(\d)/, "$1"); // 去除前面多餘的0（可選）
+  if (value.includes(".")) {
+    const parts = value.split(".");
+    parts[1] = parts[1].slice(0, 2); // 只取小數點後2位
+    value = parts.join(".");
+  }
+
+  amount.value = +value;
+
+  await nextTick();
+
+  inputWidth.value = inputShadow.value.offsetWidth + 40;
+};
 
 watch(amount, () => {
   if (!amount.value || amount.value < 0) {
