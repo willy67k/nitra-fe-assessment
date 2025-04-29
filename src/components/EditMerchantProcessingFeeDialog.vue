@@ -3,10 +3,10 @@
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
-          <h5 class="text-bold">Edit Merchant Processing Fee</h5>
+          <h5 class="text-bold">{{ $t("msg.merchant.EditMerchantProcessingFee") }}</h5>
           <q-btn class="text-gray-300" icon="close" flat round dense v-close-popup />
         </div>
-        <p class="text-xs text-gray-700">Only applies to this transaction</p>
+        <p class="text-xs text-gray-700">{{ $t("msg.merchant.OnlyAppliesToThisTransaction") }}</p>
       </q-card-section>
 
       <q-card-section class="q-px-lg">
@@ -45,7 +45,7 @@
 
       <q-card-section class="q-px-lg q-pb-sm">
         <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-nm">Merchant processing fee</p>
+          <p class="text-sm text-gray-900 q-mr-nm">{{ $t("msg.merchant.MerchantProcessingFee") }}</p>
           <q-input
             type="number"
             v-model.number="merchantFeePercentageDisplay"
@@ -81,7 +81,7 @@
           <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
         </div>
         <div class="row items-center no-wrap q-mb-nm" style="white-space: nowrap">
-          <p class="text-sm text-gray-900 q-mr-nm">Patient processing fee</p>
+          <p class="text-sm text-gray-900 q-mr-nm">{{ $t("msg.merchant.PatientProcessingFee") }}</p>
           <q-input
             type="number"
             v-model.number="patientFeePercentage"
@@ -117,16 +117,24 @@
           <p class="text-xss text-gray-700">/ ${{ totalProcessingFeeFixed }}</p>
         </div>
         <div class="text-center q-mb-md">
-          <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">Set patient processing fee to 0</u>
+          <u class="text-teal-400 text-xs" style="cursor: pointer" @click="() => setPatientFee(0)">{{ $t("msg.merchant.SetPatientProcessingFeeTo") }} 0</u>
         </div>
         <div class="">
-          <p class="text-sm text-bold" style="min-height: 42px">On this ${{ amountFixed }} transaction, you pay ${{ merchantPayFee }}, and patient pays ${{ patientPayFee }}</p>
+          <p class="text-sm text-bold" style="min-height: 42px">
+            {{
+              $t("msg.merchant.OnThisTransactionYouPayAndpatientPays", {
+                amountFixed,
+                merchantPayFee,
+                patientPayFee,
+              })
+            }}
+          </p>
         </div>
       </q-card-section>
 
       <q-card-actions align="between" class="q-py-md q-px-lg">
-        <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup @click="amountStore.resetToOldValue" />
-        <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>Update</q-btn>
+        <q-btn flat no-caps class="custom-btn-action" color="gray-600" :label="$t('common.Cancel')" v-close-popup @click="amountStore.resetToOldValue" />
+        <q-btn unelevated no-caps class="custom-btn-action" color="orange-400" v-close-popup>{{ $t("common.Update") }}</q-btn>
       </q-card-actions>
     </q-card>
   </q-dialog>

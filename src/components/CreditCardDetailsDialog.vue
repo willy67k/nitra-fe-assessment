@@ -3,7 +3,7 @@
     <q-card style="width: 500px; border-radius: 8px">
       <q-card-section class="q-pt-lg q-px-lg q-pb-xs">
         <div class="row items-center justify-between q-mb-md">
-          <h5 class="text-bold">Credit Card Details</h5>
+          <h5 class="text-bold">{{ $t("msg.credit.CreditCardDetails") }}</h5>
           <q-btn class="text-gray-300" icon="close" flat round dense v-close-popup />
         </div>
       </q-card-section>
@@ -17,9 +17,9 @@
                 v-model="name"
                 class="custom-input"
                 input-class="text-black"
-                label="Name on Card"
+                :label="$t('msg.credit.NameOnCard')"
                 lazy-rules
-                :rules="[(val) => (val && val.length > 0) || 'Please type your name on card']"
+                :rules="[(val) => (val && val.length > 0) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.NameOnCard')]"
               />
             </div>
             <div class="col-12 q-mb-sm" style="padding: 0 6px">
@@ -30,11 +30,11 @@
                 @update:model-value="onUpdateCardNumber"
                 class="custom-input"
                 input-class="text-black"
-                label="Card Number"
+                :label="$t('msg.credit.CardNumber')"
                 lazy-rules
                 :rules="[
                   (val) => {
-                    return (val && val.length > 18) || 'Please type your card number';
+                    return (val && val.length > 18) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.CardNumber');
                   },
                 ]"
               />
@@ -47,11 +47,11 @@
                 @update:model-value="onUpdateExpirationDate"
                 class="custom-input"
                 input-class="text-black"
-                label="Expiration Date"
+                :label="$t('msg.credit.ExpirationDate')"
                 lazy-rules
                 :rules="[
                   (val) => {
-                    return (val && val.length > 4) || 'Please type your expiration date';
+                    return (val && val.length > 4) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.ExpirationDate');
                   },
                 ]"
               />
@@ -64,9 +64,9 @@
                 @update:model-value="(value) => onUpdateOnlyNumber(value, 'cvc')"
                 class="custom-input"
                 input-class="text-black"
-                label="CVC"
+                :label="$t('msg.credit.CVC')"
                 lazy-rules
-                :rules="[(val) => (val && val.length > 0) || 'Please type CVC on card']"
+                :rules="[(val) => (val && val.length > 0) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.CVC')]"
               />
             </div>
             <div class="col-6 q-mb-sm" style="padding: 0 6px">
@@ -77,8 +77,8 @@
                 class="custom-input"
                 input-class="text-black"
                 :options="options"
-                label="Country"
-                :rules="[(val) => val || 'Please type your country']"
+                :label="$t('common.Country')"
+                :rules="[(val) => val || $t('common.PleaseTypeYour') + ' ' + $t('common.Country')]"
               />
             </div>
             <div class="col-6 q-mb-sm" style="padding: 0 6px">
@@ -89,9 +89,9 @@
                 @update:model-value="(value) => onUpdateOnlyNumber(value, 'zip')"
                 class="custom-input"
                 input-class="text-black"
-                label="ZIP"
+                :label="$t('msg.credit.ZIP')"
                 lazy-rules
-                :rules="[(val) => (val && val.length > 0) || 'Please type your ZIP code']"
+                :rules="[(val) => (val && val.length > 0) || $t('common.PleaseTypeYour') + ' ' + $t('msg.credit.ZIP')]"
               />
             </div>
           </div>
@@ -102,7 +102,7 @@
         <q-card-section>
           <div class="row items-center justify-between">
             <q-btn flat no-caps class="custom-btn-action" color="gray-600" label="Cancel" v-close-popup />
-            <q-btn type="submit" unelevated no-caps class="custom-btn-action" color="orange-400"> Pay ${{ totalAmount }} </q-btn>
+            <q-btn type="submit" unelevated no-caps class="custom-btn-action" color="orange-400"> {{ $t("common.Pay") }} ${{ totalAmount }} </q-btn>
           </div>
         </q-card-section>
       </q-form>

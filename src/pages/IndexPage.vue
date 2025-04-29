@@ -1,6 +1,6 @@
 <template>
   <q-toolbar style="padding: 0">
-    <h5 class="text-black text-bold q-mr-lg">Collect Payment</h5>
+    <h5 class="text-black text-bold q-mr-lg">{{ $t("msg.home.CollectPayment") }}</h5>
     <div>
       <q-select
         class="q-field-custom"
@@ -25,12 +25,12 @@
   <q-card flat bordered class="full-card">
     <div class="card-left q-pt-8xl">
       <div class="row column items-center full-width">
-        <p class="text-gray-700 text-lg q-mb-lg">Enter Amount</p>
+        <p class="text-gray-700 text-lg q-mb-lg">{{ $t("msg.home.EnterAmount") }}</p>
         <div class="q-mb-6xl" style="position: relative">
           <sup style="position: relative; right: 4px; top: -16px">
             <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign"></i>
           </sup>
-          <input type="number" :value="amount" @input="onInputValue" class="custom-input text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" />
+          <input type="number" :value="amount" @input="onInputValue" @blur="isTouched = true" class="custom-input text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" />
           <span ref="inputShadow" class="text-black text-bold text-7xl" style="position: absolute; visibility: hidden; white-space: pre">{{ amount }}</span>
         </div>
         <div>
@@ -40,25 +40,25 @@
     </div>
     <q-card flat class="card-right q--avoid-card-border">
       <q-card-section>
-        <p class="text-bold">Summary</p>
+        <p class="text-bold">{{ $t("common.Summary") }}</p>
       </q-card-section>
 
       <q-separator />
 
       <q-card-section>
         <div class="row justify-between q-px-md q-py-nm">
-          <p class="text-xs text-gray-700">Subtotal</p>
+          <p class="text-xs text-gray-700">{{ $t("common.Subtotal") }}</p>
           <p class="text-xs text-gray-700">${{ amount }}</p>
         </div>
         <div class="row justify-between q-px-md q-py-nm">
-          <p class="text-xs text-gray-700">Tax({{ fixedTax }}%)</p>
+          <p class="text-xs text-gray-700">{{ $t("common.Tax") }}({{ fixedTax }}%)</p>
           <p class="text-xs text-gray-700">${{ fixedTaxPrice }}</p>
         </div>
 
         <q-separator color="teal-700" />
 
         <div class="row justify-between q-px-md q-py-lg">
-          <p class="text-xs">Total</p>
+          <p class="text-xs">{{ $t("common.Total") }}</p>
           <p class="text-xs">${{ afterTaxPrice }}</p>
         </div>
 
@@ -80,13 +80,13 @@
             <template v-slot:cash>
               <div class="row items-center no-wrap">
                 <q-icon right class="custom-icon" name="fa-solid fa-sack-dollar text-teal-500" />
-                <span class="text-teal-700 text-xss">Pay by Cash ${{ afterTaxPrice }}</span>
+                <span class="text-teal-700 text-xss">{{ $t("msg.home.PaybyCash") }} ${{ afterTaxPrice }}</span>
               </div>
             </template>
             <template v-slot:card>
               <div class="row items-center no-wrap">
                 <q-icon right class="custom-icon" name="fa-solid fa-credit-card text-teal-500" />
-                <span class="text-teal-700 text-xss">Pay by Card ${{ payByCardFee }}</span>
+                <span class="text-teal-700 text-xss">{{ $t("msg.home.PaybyCard") }} ${{ payByCardFee }}</span>
               </div>
             </template>
           </q-btn-toggle>
@@ -95,7 +95,9 @@
         <q-slide-transition>
           <div v-show="paymentMethod === PaymentMethodEnum.Card">
             <div class="row justify-between q-px-md q-pb-lg">
-              <p class="text-xs text-gray-700">Patient Card Processing Fee <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">Edit</u></p>
+              <p class="text-xs text-gray-700">
+                {{ $t("msg.home.PatientCardProcessingFee") }} <u @click="() => (isFeeOpen = true)" class="text-teal-400 q-ml-nm" style="cursor: pointer">{{ $t("common.Edit") }}</u>
+              </p>
               <p class="text-xs">${{ patientPayFee }}</p>
             </div>
           </div>
@@ -104,12 +106,14 @@
         <q-separator color="teal-700" />
 
         <div class="row justify-between items-center q-px-md q-py-lg">
-          <p v-if="paymentMethod === PaymentMethodEnum.Cash" class="text-xs">Pay by Cash Total</p>
-          <p v-else class="text-xs">Pay by Card Total</p>
+          <p v-if="paymentMethod === PaymentMethodEnum.Cash" class="text-xs">{{ $t("msg.home.PaybyCashTotal") }}</p>
+          <p v-else class="text-xs">{{ $t("msg.home.PaybyCardTotal") }}</p>
           <p :class="`text-xl text-bold ${isTouched && isBelowMinimum ? 'text-red-400' : 'text-green-500'}`">${{ totalAmount }}</p>
         </div>
         <q-slide-transition>
-          <p v-show="isTouched && isBelowMinimum" class="text-xss text-red-500 q-px-md" style="position: absolute; margin-top: -20px">*Total amount falls below the required minimum of $0.50</p>
+          <p v-show="isTouched && isBelowMinimum" class="text-xss text-red-500 q-px-md" style="position: absolute; margin-top: -20px">
+            {{ $t("msg.home.TotalAmountFallsBelowTheRequiredMinimumOf") }} ${{ commonStore.minimumAmount.toFixed(2) }}
+          </p>
         </q-slide-transition>
       </q-card-section>
 
@@ -138,7 +142,7 @@
           class="custom-select"
           input-class="text-black"
           :options="readerOptions"
-          label="Device Reader"
+          :label="$t('msg.home.DeviceReader')"
         >
           <template v-slot:option="scope">
             <q-item v-bind="scope.itemProps">
@@ -159,7 +163,7 @@
           <div v-show="paymentMethod === PaymentMethodEnum.Cash">
             <div v-if="paymentMethod === PaymentMethodEnum.Cash">
               <q-btn @click="() => null" unelevated no-caps icon="fa-solid fa-money-bill-wave" color="orange-400" class="custom-btn full-width q-mb-nm">
-                <span class="text-sm">Log Payment</span>
+                <span class="text-sm">{{ $t("msg.home.LogPayment") }}</span>
               </q-btn>
             </div>
           </div>
@@ -168,10 +172,10 @@
           <div v-show="paymentMethod === PaymentMethodEnum.Card">
             <div v-if="paymentMethod === PaymentMethodEnum.Card">
               <q-btn @click="() => (isReaderOpen = true)" unelevated no-caps icon="fa-solid fa-mobile-screen" color="orange-400" class="custom-btn full-width q-mb-nm" :disable="!reader">
-                <span class="text-sm">Initiate Payment on Reader</span>
+                <span class="text-sm">{{ $t("msg.home.InitiatePaymentOnReader") }}</span>
               </q-btn>
               <q-btn @click="() => (isCreditOpen = true)" unelevated no-caps icon="fa-solid fa-credit-card text-orange-300" color="orange-50" class="custom-btn full-width q-mb-nm">
-                <span class="text-sm text-orange-400">Input Card Number Manually</span>
+                <span class="text-sm text-orange-400">{{ $t("msg.home.InputCardNumberManually") }}</span>
               </q-btn>
             </div>
           </div>
@@ -406,7 +410,7 @@ const fixedTax = computed(() => {
 
 const totalAmount = computed(() => {
   if (paymentMethod.value === PaymentMethodEnum.Cash) {
-    return afterTaxPrice.value;
+    return numeral(afterTaxPrice.value).format("0.00");
   }
   return payByCardFee.value;
 });
