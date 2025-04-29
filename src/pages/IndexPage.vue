@@ -27,10 +27,11 @@
       <div class="row column items-center full-width">
         <p class="text-gray-700 text-lg q-mb-lg">{{ $t("msg.home.EnterAmount") }}</p>
         <div class="q-mb-6xl md:q-mb-lg" style="position: relative">
-          <sup style="position: relative; right: 4px; top: -16px">
-            <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign"></i>
-          </sup>
-          <input type="number" :value="amount" @input="onInputValue" @blur="isTouched = true" class="custom-input text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" />
+          <q-input v-model="amount" class="custom-input" input-class="text-black text-bold text-7xl" :style="{ width: inputWidth + 'px' }" @update:model-value="onInputValue" @blur="isTouched = true">
+            <template v-slot:prepend>
+              <i class="text-black text-bold text-4xl fa-solid fa-dollar-sign q-mb-md"></i>
+            </template>
+          </q-input>
           <span ref="inputShadow" class="text-black text-bold text-7xl" style="position: absolute; visibility: hidden; white-space: pre">{{ amount }}</span>
         </div>
         <div style="width: 100%; max-width: 400px" class="q-px-md q-pb-md">
@@ -289,7 +290,7 @@
   margin-left: 0px;
 }
 
-.custom-input {
+:deep(.custom-input) {
   height: 55px;
   outline: none;
   border: none;
@@ -304,6 +305,20 @@
     -moz-appearance: textfield;
     -webkit-appearance: none; /* WebKit-based browsers */
     appearance: none;
+  }
+
+  .q-field__control,
+  .q-field__control::before,
+  .q-field__control::after,
+  .q-field__marginal {
+    border: none;
+    background: transparent;
+  }
+
+  &.q-field--highlighted {
+    .q-field__control {
+      border: none;
+    }
   }
 }
 
@@ -369,10 +384,9 @@ const amountStore = useAmountStore();
 const { paymentMethod, amount, description, isTouched, location, reader, fixedTaxPrice, afterTaxPrice, patientPayFee } = storeToRefs(amountStore);
 
 const inputShadow = ref(null);
-const inputWidth = ref(60);
+const inputWidth = ref(90);
 
-const onInputValue = async ($event) => {
-  let value = $event.target.value;
+const onInputValue = async (value) => {
   value = value
     .replace(/[^\d.]/g, "")
     .replace(/^(\d*)\.(\d*)\.(.*)/, "$1.$2")
@@ -383,7 +397,7 @@ const onInputValue = async ($event) => {
     value = parts.join(".");
   }
 
-  amount.value = +value;
+  amount.value = value;
 
   await nextTick();
 

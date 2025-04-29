@@ -3,11 +3,14 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
 import { useCommonStore } from "./stores/common-store";
 
 // initialize the store
 const commonStore = useCommonStore();
-commonStore.initOrganization();
-commonStore.initLocations();
-commonStore.initPaymentReaders();
+onMounted(() => {
+  commonStore.initOrganization();
+  commonStore.initLocations();
+  commonStore.initPaymentReaders();
+});
 </script>

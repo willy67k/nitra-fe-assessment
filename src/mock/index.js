@@ -12,7 +12,7 @@ function axiosMock(data) {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(axiosMockData);
-    }, 200);
+    }, 500);
   });
 }
 
